@@ -44,6 +44,26 @@ The note Claude sees starts with `<display-name> here.` and carries `from-name` 
 
 The auth key is `~/.claude/sessions/<pid>.<sha256 of the socket path>.key`, mode `600`. The token is 32 hex characters. It is never printed. The registry version is `grok`. Claude also checks that the process on the socket is that pid, with the same `/proc` start time.
 
+## Checking that a note arrived
+
+`send` reporting `sent to <claude-name> as <name>` only means the socket accepted the note, and an empty reply on the socket is normal; a bad token looks the same. The proof is on Claude's side, in two places.
+
+**The session registry.** `~/.claude/sessions/<pid>.json` (the same file `claude agents --json` reads) moves `status` to `busy` and bumps `updatedAt` when the note is taken.
+
+**The transcript.** It is
+
+```text
+~/.claude/projects/<cwd, slashes turned into dashes>/<sessionId>.jsonl
+```
+
+so a session started in `/data/python/SDR` writes to the directory `-data-python-SDR`. A delivery appends a `queue-operation` record of `enqueue`, then a `user` record with `origin.kind` `peer`, `turnOrigin` `peer` and `promptSource` `system`. The text of the second one starts `Another Claude session sent a message:`. If the status moved but those two records are missing, the note did not arrive as a peer message.
+
+Both were checked on 2026-10-04 against an idle session, which took the note at once.
+
+## Not tried
+
+**A note to a session that is in the middle of a turn.** The `enqueue` record suggests it is held and taken at the session's next tool round, but this program has not been run against a busy session to see. Notes between Claude sessions over the same socket did reach a busy session that way on 2026-10-04, at its next tool round; that shows the receiving side queues, and is not a test of `send`.
+
 ## Requirements
 
 - Linux, same user for Grok and Claude Code

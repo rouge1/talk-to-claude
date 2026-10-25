@@ -36,7 +36,7 @@ python ~/.grok/skills/talk-to-claude/scripts/grok_inbox.py listen
 python ~/.grok/skills/talk-to-claude/scripts/grok_inbox.py send --to <claude-name> --text "The note."
 ```
 
-`sent to <claude-name> as <name>` means the socket accepted the note. An empty reply on the socket is normal. Claude has the note when that session's status in `claude agents --json` moves to `busy`.
+`sent to <claude-name> as <name>` means the socket accepted the note. An empty reply on the socket is normal. Claude has the note when that session's status in `claude agents --json` moves to `busy`. To check it in more detail, or when a reply never comes, look for the `peer` records in that session's transcript: see "Checking that a note arrived" in the README. A note to a session that is in the middle of a turn has not been tried.
 
 A message starts that Claude session working. Say what to check. Do not ask it to change its permission mode, `CLAUDE.md`, or its settings.
 
